@@ -1,8 +1,15 @@
-from src.ingestion import load_doc,chunk_doc
+from src.ingestion import run_ingestion_pipeline
+from src.retrieval import run_retrieval_pipeline    
 
 
 file_path="./doc/AGI_One_Page_Summary.pdf"
+query="What are the challenges in AGI?"
 
-docs=load_file(file_path)
+run_ingestion_pipeline(file_path)
 
-chunk_doc(docs)
+retrieved_docs=run_retrieval_pipeline(query)
+
+print(f"Retrieved documents {retrieved_docs} for query '{query}':")
+
+for i,doc in enumerate(retrieved_docs):
+    print(f"Document {i+1}: \n",doc.page_content)
