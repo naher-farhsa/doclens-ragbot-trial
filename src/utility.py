@@ -1,19 +1,25 @@
+import os
+from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
 
+# Load environment variables
+load_dotenv()
+
 embedding_model="gemini-embedding-2-preview"
 llm_model="llama-3.3-70b-versatile"
+
 # 1. Get Embedding Model
 def get_embeddings_model()->GoogleGenerativeAIEmbeddings: 
       print("Initializing embedding model")
       try: 
-         embedding_model=GoogleGenerativeAIEmbeddings(
+         embeddings=GoogleGenerativeAIEmbeddings(
             model=embedding_model,
-            api_key="AIzaSyAvZr7UIH3TA-5_cn8teArtErp140CsphU"
+            api_key=os.getenv("GOOGLE_API_KEY")
             )
          print(f"Initialized embedding model: {embedding_model}")
-         return embedding_model
+         return embeddings
       
       except Exception as e:
          print(f"Error initializing embedding model: {e}")
@@ -42,7 +48,7 @@ def get_llm()->ChatGroq:
     try:
        llm=ChatGroq(
           model=llm_model,
-          api_key="",
+          api_key=os.getenv("GROQ_API_KEY"),
           temperature=0.6
        )
        print(f"Initialized LLM model : {llm_model}")

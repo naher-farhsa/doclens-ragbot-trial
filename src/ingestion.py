@@ -18,7 +18,7 @@ import os
 
 load_dotenv()
 
-file_path="./doc/AGI_One_Page_Summary.pdf"
+file_path="./doc/IAI.pdf"
 
 # 1. Load File
 def load_file(file_path:str)->list:
@@ -161,18 +161,41 @@ def run_hierarchical_ingestion(doc:list, embedding_model):
         return None, None
 
 
+# 3.1 Check if already ingested
+def check_already_ingested(embedding_model) -> bool:
+    try:
+        token_store = get_vector_store(embedding_model, collection_name="token_chunks")
+        hier_store = get_vector_store(embedding_model, collection_name="hierarchical_chunks")
+        
+        token_count = token_store._collection.count() if token_store else 0
+        hier_count = hier_store._collection.count() if hier_store else 0
+        
+        print(f"[CHECK INGESTION] 'token_chunks' collection contains {token_count} documents.")
+        print(f"[CHECK INGESTION] 'hierarchical_chunks' collection contains {hier_count} documents.")
+        
+        return token_count > 0 and hier_count > 0
+    except Exception as e:
+        print(f"[CHECK INGESTION] Error checking ingestion status: {e}")
+        return False
+
+
 # 4. Run Ingestion (Updated with both chunking pipelines)
 def run_ingestion_pipeline(file_path:str):
 
    if file_path:
-      print(f"\nStarting ingestion pipeline for file: {file_path}")
       try:
-         # Step 1: Load original document
-         doc=load_file(file_path)
-         if doc:
-            embedding_model=get_embeddings_model()
-            if embedding_model:
-               
+         embedding_model=get_embeddings_model()
+         if embedding_model:
+            if check_already_ingested(embedding_model):
+               print("\n" + "=" * 60)
+               print("[INGESTION] Both token and hierarchical collections are already populated. Skipping ingestion.")
+               print("=" * 60)
+               return
+
+            print(f"\nStarting ingestion pipeline for file: {file_path}")
+            # Step 1: Load original document
+            doc=load_file(file_path)
+            if doc:
                # ==========================================
                # PIPELINE 1: Token-based chunking (INDEPENDENT)
                # Original Doc → Token Chunks

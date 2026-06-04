@@ -2,8 +2,8 @@ from src.utility import get_llm
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage
-from pydantic import BaseModel
-from typing import Literal
+from pydantic import BaseModel, Field
+from typing import Literal, List
 
 REWRITE_PROMPT = (
     "Analyze the user's question and conversation history.\n"
@@ -18,7 +18,8 @@ SYSTEM_PROMPT = (
     "You are DocLens, an intelligent document analysis assistant.\n"
     "Answer using ONLY the provided context documents.\n"
     "If context is insufficient, say so clearly.\n"
-    "Be concise and cite specifics from the context when possible."
+    "Be concise and cite specifics from the context when possible.\n"
+    "Provide the answer and extract any specific sources/citations used from the context."
 )
 
 # 1. Load LLM
@@ -37,6 +38,11 @@ def load_llm() -> ChatGoogleGenerativeAI:
 class QueryPlan(BaseModel):
     action: Literal["skip", "retrieve"]
     query: str = ""
+
+# Schema for structured response generation
+class ResultPlan(BaseModel):
+    answer: str = Field(description="The conversational answer generated based on the context.")
+    sources: List[str] = Field(default=[], description="List of source document snippets, IDs, or facts cited to formulate the answer.")
 
 def rewrite_query(llm: ChatGoogleGenerativeAI, chat_history: list, query: str) -> QueryPlan:
     # 2.1. Build prompt
@@ -61,10 +67,11 @@ def rewrite_query(llm: ChatGoogleGenerativeAI, chat_history: list, query: str) -
          print(f"Received query plan from LLM: action={plan.action}, query={plan.query}")
          return plan
     except Exception as e:
-        print(f"Error rewriting query: {e}")
+         print(f"Error rewriting query: {e}")
+         return QueryPlan(action="retrieve", query=query)
 
 # 3. Generate Answer
-def generate_answer(llm: ChatGoogleGenerativeAI, chat_history: list, query: str, docs: list) -> str:
+def generate_answer(llm: ChatGoogleGenerativeAI, chat_history: list, query: str, docs: list) -> ResultPlan:
     # 3.1. Build context string from retrieved docs
     context = "\n\n".join([doc.page_content for doc in docs])
 
@@ -75,26 +82,27 @@ def generate_answer(llm: ChatGoogleGenerativeAI, chat_history: list, query: str,
         ("human", "Context:\n{context}\n\nQuestion: {question}"),
     ])
 
-    # 3.3. Bind LLM to prompt
-    print(f"Binding LLM to prompt for answer generation")   
-    structured_llm = llm.with_structured_output(QueryPlan)  
+    # 3.3. Bind LLM to prompt for structured answer generation
+    print(f"Binding LLM to prompt for structured answer generation with ResultPlan")   
+    structured_llm = llm.with_structured_output(ResultPlan)
 
     # 3.4. Build and invoke chain
-    print(f"Building chain with prompt and LLM for answer generation")
+    print(f"Building chain with prompt and structured LLM for answer generation")
     chain = prompt | structured_llm
 
     #3.5. Invoke chain and get answer
-    print(f"Invoking chain to generate answer with context and question")
+    print(f"Invoking chain to generate structured answer")
     try: 
         result = chain.invoke({"context": context, "chat_history": chat_history, "question": query})
-        print(f"Received answer from LLM: {result.content}")
-        return result.content
+        print(f"Received structured answer from LLM: {result.answer}")
+        print(f"Sources cited: {result.sources}")
+        return result
     except Exception as e:
         print(f"Error generating answer: {e}")
-        return "Sorry, I encountered an error while generating the answer."
+        return ResultPlan(answer="Sorry, I encountered an error while generating the answer.", sources=[])
 
 # 4. Run Generation
-def run_generation(llm: ChatGoogleGenerativeAI, chat_history: list, query: str, docs: list) -> str:
+def run_generation(llm: ChatGoogleGenerativeAI, chat_history: list, query: str, docs: list) -> ResultPlan:
     print(f"Running generation pipeline with query: {query} and chat_history: {chat_history}")
     try: 
         plan = rewrite_query(llm, chat_history, query)
@@ -110,10 +118,10 @@ def run_generation(llm: ChatGoogleGenerativeAI, chat_history: list, query: str, 
             return generate_answer(llm, chat_history, query, docs)
     except Exception as e:
         print(f"Error in generation pipeline: {e}")
-        return "Sorry, I encountered an error while processing your request."
+        return ResultPlan(answer="Sorry, I encountered an error while processing your request.", sources=[])
 
 # 5. Run Generation Pipeline
-def run_generation_pipeline(query: str, docs: list, chat_history: list = []) -> str:
+def run_generation_pipeline(query: str, docs: list, chat_history: list = []) -> ResultPlan:
     print(f"Starting generation pipeline for query: {query} with chat_history: {chat_history} and docs: {docs}")
     try:
         llm = load_llm()
@@ -121,8 +129,8 @@ def run_generation_pipeline(query: str, docs: list, chat_history: list = []) -> 
           return run_generation(llm, chat_history, query, docs)
     except Exception as e:
         print(f"Error running generation pipeline: {e}")
-        return "Sorry, I encountered an error while processing your request."
+        return ResultPlan(answer="Sorry, I encountered an error while processing your request.", sources=[])
 
 if __name__ == "__main__":
-    answer = run_generation_pipeline("What is AGI?", docs=[])
-    print(answer)
+    result = run_generation_pipeline("What is AGI?", docs=[])
+    print(result)
