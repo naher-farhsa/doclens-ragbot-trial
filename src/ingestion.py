@@ -159,8 +159,8 @@ def run_hierarchical_ingestion(doc:list, embedding_model):
         # id_key="parent_id" means child chunks stored in vectorstore will have
         # metadata["parent_id"] = the key used to look up the parent in docstore
         retriever = ParentDocumentRetriever(
-            vectorstore=hierarchical_vector_store,
-            docstore=parent_store,
+            vectorstore=hierarchical_vector_store, # for child chunks
+            docstore=parent_store,                 # for parent chunks
             child_splitter=child_splitter,
             parent_splitter=parent_splitter,
             id_key="parent_id",
@@ -168,7 +168,7 @@ def run_hierarchical_ingestion(doc:list, embedding_model):
 
         # Step 5: Add original documents — retriever handles all splitting and storage
         print("[HIERARCHICAL INGESTION] Adding documents to ParentDocumentRetriever...")
-        retriever.add_documents(doc)
+        retriever.add_documents(doc) 
 
         child_count = hierarchical_vector_store._collection.count()
         parent_keys = list(parent_store.yield_keys())

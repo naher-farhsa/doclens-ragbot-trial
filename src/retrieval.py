@@ -157,7 +157,7 @@ def run_hierarchical_retrieval(query:str):
             retriever = ParentDocumentRetriever(
                 vectorstore=vector_store,
                 docstore=parent_store,
-                child_splitter=child_splitter,
+                search_kwargs={"k": 2},
                 id_key="parent_id",
             )
 
