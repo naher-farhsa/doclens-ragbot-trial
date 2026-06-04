@@ -1,8 +1,9 @@
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
 
 embedding_model="gemini-embedding-2-preview"
-llm_model="gemini-2.5-flash"
+llm_model="llama-3.3-70b-versatile"
 # 1. Get Embedding Model
 def get_embeddings_model()->GoogleGenerativeAIEmbeddings: 
       print("Initializing embedding model")
@@ -20,28 +21,28 @@ def get_embeddings_model()->GoogleGenerativeAIEmbeddings:
 
 
 #2. Get Vector Store
-def get_vector_store(embedding_model)->Chroma:
-    print(f"Initializing vector store with embedding model: {llm_model}")
+def get_vector_store(embedding_model, collection_name="doc_chunks")->Chroma:
+    print(f"Initializing vector store with collection: {collection_name}")
     try: 
       vector_store=Chroma(
-         collection_name="doc_chunks",
+         collection_name=collection_name,
          embedding_function=embedding_model,
          persist_directory="./db/chroma_db",
          collection_metadata={"hnsw:space": "cosine"}
       )
-      print("Initialized vector store")
+      print(f"Initialized vector store for collection: {collection_name}")
       return vector_store
     
     except Exception as e:
       print(f"Error initializing vector store {e}")
       return None
 
-def get_llm()->ChatGoogleGenerativeAI:
+def get_llm()->ChatGroq:
     print(f"Initializing LLM model: {llm_model}")
     try:
-       llm=ChatGoogleGenerativeAI(
+       llm=ChatGroq(
           model=llm_model,
-          api_key="AIzaSyAvZr7UIH3TA-5_cn8teArtErp140CsphU",
+          api_key="",
           temperature=0.6
        )
        print(f"Initialized LLM model : {llm_model}")

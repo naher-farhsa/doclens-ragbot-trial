@@ -77,11 +77,11 @@ def generate_answer(llm: ChatGoogleGenerativeAI, chat_history: list, query: str,
 
     # 3.3. Bind LLM to prompt
     print(f"Binding LLM to prompt for answer generation")   
-    structured_llm = llm.with_structured_output(QueryPlan)  # Reuse QueryPlan for structured output if needed, or just use llm directly
+    structured_llm = llm.with_structured_output(QueryPlan)  
 
     # 3.4. Build and invoke chain
     print(f"Building chain with prompt and LLM for answer generation")
-    chain = prompt | llm
+    chain = prompt | structured_llm
 
     #3.5. Invoke chain and get answer
     print(f"Invoking chain to generate answer with context and question")
