@@ -3,11 +3,12 @@
 # ----------------------------------------
 
 
-from src.utility import get_embeddings_model,get_vector_store
+from src.utility import get_embeddings_model, get_vector_store, get_parent_chunks_store
 from langchain_community.retrievers import BM25Retriever
-from langchain_classic.retrievers import EnsembleRetriever
+from langchain_classic.retrievers import EnsembleRetriever, ParentDocumentRetriever
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from  langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_core.documents import Document
 
 # 1. Load Model and Vector Store
@@ -27,9 +28,9 @@ def load_model_vector_store(collection_name="doc_chunks"):
     except Exception as e:
         print(f"Error loading model and vector store: {e}")
         return None,None
-    
+
 # 2. Get Retriever
-def get_hybrid_retriever(embedding_model:GoogleGenerativeAIEmbeddings,vector_store:Chroma)->EnsembleRetriever:  
+def get_hybrid_retriever(embedding_model:GoogleGenerativeAIEmbeddings,vector_store:Chroma)->EnsembleRetriever:
     try:
         print("Initializing retriever")
         if vector_store:
@@ -38,22 +39,22 @@ def get_hybrid_retriever(embedding_model:GoogleGenerativeAIEmbeddings,vector_sto
                 search_kwargs={"k":1, "score_threshold":0.7},
                 search_type="similarity_score_threshold"
                 )
-            
+
             # bm25 retriever works on raw text and metadata from the vector store (here vector store : chroma)
-            
+
             # all_docs is a dict with keys "documents" and "metadatas", each containing a list of texts and corresponding metadata
-            all_docs=vector_store.get(include=["documents","metadatas"]) 
-            
+            all_docs=vector_store.get(include=["documents","metadatas"])
+
             #texts is a list of document texts, metas is a list of corresponding metadata dicts, we create Document objects for BM25 retriever
             texts,metas=all_docs["documents"],all_docs["metadatas"]
             documents=[Document(page_content=t,metadata=m) for t,m in zip(texts,metas)]
-            
-            bm25_retriever=BM25Retriever.from_documents(documents=documents, k=1)   
+
+            bm25_retriever=BM25Retriever.from_documents(documents=documents, k=1)
             if vector_retriever and bm25_retriever:
-                
+
                 # Ensemble retriever combines both vector and BM25 retrievers, we can assign weights to each retriever based on their importance (here 0.7 for vector and 0.3 for BM25)
                 ensemble_retriever=EnsembleRetriever(retrievers=[vector_retriever,bm25_retriever],weights=[0.7,0.3])
-                
+
                 print("Initialized ensemble retriever with vector and BM25 retrievers")
                 return ensemble_retriever
             else:
@@ -75,7 +76,7 @@ def run_retrieval(query:str,retriever:EnsembleRetriever)->list:
         if retriever:
             retrived_docs=retriever.invoke(query)
         print(f"Retrieved {len(retrived_docs)} documents for query: {query}")
-        return retrived_docs    
+        return retrived_docs
     except Exception as e:
         print(f"Error running retrieval: {e}")
         return None
@@ -93,7 +94,7 @@ def run_token_retrieval(query:str):
     print("[TOKEN RETRIEVAL] Starting token chunks retrieval")
     print(f"[TOKEN RETRIEVAL] Query: {query}")
     print("=" * 60)
-    
+
     try:
         embedding_model, vector_store = load_model_vector_store(collection_name="token_chunks")
         if embedding_model and vector_store:
@@ -101,7 +102,7 @@ def run_token_retrieval(query:str):
             if retriever:
                 print("[TOKEN RETRIEVAL] Retriever is ready, executing query...")
                 retrieved_docs = run_retrieval(query, retriever)
-                
+
                 if retrieved_docs:
                     print(f"\n[TOKEN RETRIEVAL] === RESULTS ===")
                     print(f"[TOKEN RETRIEVAL] Retrieved {len(retrieved_docs)} documents from token chunks")
@@ -112,7 +113,7 @@ def run_token_retrieval(query:str):
                     print(f"[TOKEN RETRIEVAL] === END TOKEN RESULTS ===\n")
                 else:
                     print("[TOKEN RETRIEVAL] No documents retrieved from token chunks")
-                
+
                 print("[TOKEN RETRIEVAL] Token chunks retrieval completed")
                 return retrieved_docs
             else:
@@ -127,46 +128,55 @@ def run_token_retrieval(query:str):
 
 
 # ==========================================
-# HIERARCHICAL CHUNKS RETRIEVAL
+# HIERARCHICAL CHUNKS RETRIEVAL (ParentDocumentRetriever)
 # ==========================================
 def run_hierarchical_retrieval(query:str):
     """
-    Independent retrieval from hierarchical child chunks.
-    Retrieves from 'hierarchical_chunks' collection.
+    Retrieval using ParentDocumentRetriever:
+    - Searches child chunks in 'hierarchical_chunks' vector store for the best semantic match.
+    - Looks up the corresponding parent chunks from the persisted InMemoryStore.
+    - Returns full parent chunks as context for generation.
     """
     print("\n" + "=" * 60)
-    print("[HIERARCHICAL RETRIEVAL] Starting hierarchical chunks retrieval")
+    print("[HIERARCHICAL RETRIEVAL] Starting hierarchical retrieval (ParentDocumentRetriever)")
     print(f"[HIERARCHICAL RETRIEVAL] Query: {query}")
     print("=" * 60)
-    
+
     try:
         embedding_model, vector_store = load_model_vector_store(collection_name="hierarchical_chunks")
         if embedding_model and vector_store:
-            retriever = get_hybrid_retriever(embedding_model, vector_store)
-            if retriever:
-                print("[HIERARCHICAL RETRIEVAL] Retriever is ready, executing query...")
-                retrieved_docs = run_retrieval(query, retriever)
-                
-                if retrieved_docs:
-                    print(f"\n[HIERARCHICAL RETRIEVAL] === RESULTS ===")
-                    print(f"[HIERARCHICAL RETRIEVAL] Retrieved {len(retrieved_docs)} documents from hierarchical chunks")
-                    for i, doc in enumerate(retrieved_docs):
-                        print(f"\n[HIERARCHICAL RETRIEVAL] --- Document {i+1} ---")
-                        print(f"[HIERARCHICAL RETRIEVAL] Content: {doc.page_content[:200]}...")
-                        print(f"[HIERARCHICAL RETRIEVAL] Metadata: {doc.metadata}")
-                        if "parent_id" in doc.metadata:
-                            print(f"[HIERARCHICAL RETRIEVAL] Parent ID: {doc.metadata['parent_id']}")
-                        if "child_id" in doc.metadata:
-                            print(f"[HIERARCHICAL RETRIEVAL] Child ID: {doc.metadata['child_id']}")
-                    print(f"[HIERARCHICAL RETRIEVAL] === END HIERARCHICAL RESULTS ===\n")
-                else:
-                    print("[HIERARCHICAL RETRIEVAL] No documents retrieved from hierarchical chunks")
-                
-                print("[HIERARCHICAL RETRIEVAL] Hierarchical chunks retrieval completed")
-                return retrieved_docs
+            # Load persisted parent chunks store
+            parent_store = get_parent_chunks_store()
+
+            child_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+                encoding_name="cl100k_base",
+                chunk_size=400,
+                chunk_overlap=60,
+            )
+
+            retriever = ParentDocumentRetriever(
+                vectorstore=vector_store,
+                docstore=parent_store,
+                child_splitter=child_splitter,
+                id_key="parent_id",
+            )
+
+            print("[HIERARCHICAL RETRIEVAL] Retriever is ready, executing query...")
+            retrieved_docs = retriever.invoke(query)
+
+            if retrieved_docs:
+                print(f"\n[HIERARCHICAL RETRIEVAL] === RESULTS ===")
+                print(f"[HIERARCHICAL RETRIEVAL] Retrieved {len(retrieved_docs)} parent documents")
+                for i, doc in enumerate(retrieved_docs):
+                    print(f"\n[HIERARCHICAL RETRIEVAL] --- Parent Document {i+1} ---")
+                    print(f"[HIERARCHICAL RETRIEVAL] Content ({len(doc.page_content)} chars): {doc.page_content[:200]}...")
+                    print(f"[HIERARCHICAL RETRIEVAL] Metadata: {doc.metadata}")
+                print(f"[HIERARCHICAL RETRIEVAL] === END HIERARCHICAL RESULTS ===\n")
             else:
-                print("[HIERARCHICAL RETRIEVAL] Failed to initialize retriever for hierarchical chunks")
-                return None
+                print("[HIERARCHICAL RETRIEVAL] No parent documents retrieved")
+
+            print("[HIERARCHICAL RETRIEVAL] Hierarchical retrieval completed")
+            return retrieved_docs
         else:
             print("[HIERARCHICAL RETRIEVAL] Failed to load model or vector store for hierarchical chunks")
             return None
@@ -179,14 +189,14 @@ def run_hierarchical_retrieval(query:str):
 def run_retrieval_pipeline(query:str):
     """
     Runs retrieval from BOTH chunking strategies independently:
-    1st: Token Chunks Retrieval (logged in terminal)
-    2nd: Hierarchical Chunks Retrieval (logged in terminal)
+    1st: Token Chunks Retrieval (hybrid BM25 + vector)
+    2nd: Hierarchical Chunks Retrieval (ParentDocumentRetriever — returns parent chunks)
     """
     print("\n" + "#" * 60)
     print("# RETRIEVAL PIPELINE - Independent Retrieval from Both Chunk Types")
     print(f"# Query: {query}")
     print("#" * 60)
-    
+
     # ==========================================
     # STEP 1: TOKEN CHUNKS RETRIEVAL (First)
     # ==========================================
@@ -194,24 +204,24 @@ def run_retrieval_pipeline(query:str):
     print("# STEP 1: TOKEN CHUNKS RETRIEVAL")
     print("#" * 60)
     token_docs = run_token_retrieval(query)
-    
+
     # ==========================================
     # STEP 2: HIERARCHICAL CHUNKS RETRIEVAL (Second)
     # ==========================================
     print("\n" + "#" * 60)
-    print("# STEP 2: HIERARCHICAL CHUNKS RETRIEVAL")
+    print("# STEP 2: HIERARCHICAL CHUNKS RETRIEVAL (ParentDocumentRetriever)")
     print("#" * 60)
     hierarchical_docs = run_hierarchical_retrieval(query)
-    
+
     # ==========================================
     # RETRIEVAL SUMMARY
     # ==========================================
     print("\n" + "=" * 60)
     print("[RETRIEVAL SUMMARY]")
     print(f"  Token chunks retrieved: {len(token_docs) if token_docs else 0}")
-    print(f"  Hierarchical chunks retrieved: {len(hierarchical_docs) if hierarchical_docs else 0}")
+    print(f"  Hierarchical parent docs retrieved: {len(hierarchical_docs) if hierarchical_docs else 0}")
     print("=" * 60)
-    
+
     # Return both results
     return {
         "token_docs": token_docs,
