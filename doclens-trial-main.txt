@@ -1,0 +1,344 @@
+python main.py
+
+╔══════════════════════════════════════════════════════════╗
+║            🔍 DocLens – RAG Document Chat Bot                               ║
+╚══════════════════════════════════════════════════════════╝
+
+
+────────────────────────────────────────────────────────────
+  📥 PHASE 1 — INGESTION
+────────────────────────────────────────────────────────────
+
+Starting ingestion pipeline for file: C:\Users\2460600\VSCode Projects\doclens-ragbot-trial\doc\AGI_One_Page_Summary.pdf
+📂 Loading document: C:\Users\2460600\VSCode Projects\doclens-ragbot-trial\doc\AGI_One_Page_Summary.pdf
+incorrect startxref pointer(1)
+parsing for Object Streams
+Loaded 2 pages , <class 'list'>
+Chunking documents: 2 pages
+Split into 3 chunks of <class 'langchain_core.documents.base.Document'>
+Chunk 1: 
+ {
+  "id": null,
+  "metadata": {
+    "producer": "ReportLab PDF Library - (opensource)",
+    "creator": "(unspecified)",
+    "creationdate": "2026-03-21T11:40:39+00:00",
+    "author": "(anonymous)",
+    "keywords": "",
+    "moddate": "2026-03-21T11:40:39+00:00",
+    "subject": "(unspecified)",
+    "title": "(anonymous)",
+    "trapped": "/False",
+    "source": "C:\\Users\\2460600\\VSCode Projects\\doclens-ragbot-trial\\doc\\AGI_One_Page_Summary.pdf",
+    "total_pages": 2,
+    "page": 0,
+    "page_label": "1"
+  },
+  "page_content": "Artificial General Intelligence (AGI): One-Page\n Summary\nOverview\nAGI refers to AI systems capable of human-level intelligence across multiple domains, unlike\nnarrow AI which is task-specific. It represents a major shift toward adaptable, general-purpose\nmachine cognition.\nKey Concepts\n\u007f Narrow AI: Task-specific intelligence (e.g., recommendation systems)\n\u007f AGI: Human-like reasoning across domains\n\u007f ASI: Intelligence surpassing humans in all aspects\nTechnical Foundations\n\u007f Symbolic AI: Rule-based reasoning systems\n\u007f Connectionist AI: Neural networks and deep learning\n\u007f Hybrid Models: Combine symbolic + neural approaches (most promising)\nApplications\n\u007f Finance: Trading, risk management, fraud detection\n\u007f Research: Drug discovery, climate modeling\n\u007f Business: Automation, decision support, hiring systems\nMarket Insights\n\u007f Market Size: $2.74B (2023) \u2192 $52B (2032)\n\u007f CAGR: ~36.9%\n\u007f Finance leads adoption (~38% expected by 2028)\nChallenges\n\u007f Lack of standard evaluation benchmarks",
+  "type": "Document"
+}
+Chunk 2:
+ {
+  "id": null,
+  "metadata": {
+    "producer": "ReportLab PDF Library - (opensource)",
+    "creator": "(unspecified)",
+    "creationdate": "2026-03-21T11:40:39+00:00",
+    "author": "(anonymous)",
+    "keywords": "",
+    "moddate": "2026-03-21T11:40:39+00:00",
+    "subject": "(unspecified)",
+    "title": "(anonymous)",
+    "trapped": "/False",
+    "source": "C:\\Users\\2460600\\VSCode Projects\\doclens-ragbot-trial\\doc\\AGI_One_Page_Summary.pdf",
+    "total_pages": 2,
+    "page": 0,
+    "page_label": "1"
+  },
+  "page_content": "Market Insights\n\u007f Market Size: $2.74B (2023) \u2192 $52B (2032)\n\u007f CAGR: ~36.9%\n\u007f Finance leads adoption (~38% expected by 2028)\nChallenges\n\u007f Lack of standard evaluation benchmarks\n\u007f High computational & environmental cost\n\u007f Ethical concerns: bias, safety, job displacement\n\u007f Alignment problem: ensuring AI follows human values",
+  "type": "Document"
+}
+Chunk 3:
+ {
+  "id": null,
+  "metadata": {
+    "producer": "ReportLab PDF Library - (opensource)",
+    "creator": "(unspecified)",
+    "creationdate": "2026-03-21T11:40:39+00:00",
+    "author": "(anonymous)",
+    "keywords": "",
+    "moddate": "2026-03-21T11:40:39+00:00",
+    "subject": "(unspecified)",
+    "title": "(anonymous)",
+    "trapped": "/False",
+    "source": "C:\\Users\\2460600\\VSCode Projects\\doclens-ragbot-trial\\doc\\AGI_One_Page_Summary.pdf",
+    "total_pages": 2,
+    "page": 1,
+    "page_label": "2"
+  },
+  "page_content": "Future Outlook\n\u007f Short-term: Hybrid AI systems with limited general intelligence\n\u007f Mid-term: Early AGI prototypes in finance & healthcare\n\u007f Long-term: Possible ASI emergence and global regulatory frameworks\nKey Takeaways\n\u007f AGI is both a disruptor and enabler across industries\n\u007f Financial sector is the earliest adopter\n\u007f Ethical governance and workforce reskilling are critical\n\u007f Hybrid architectures are the most viable path forward",
+  "type": "Document"
+}
+Initializing embedding model
+Initialized embedding model: client=<google.genai.client.Client object at 0x00000278835CC590> model='gemini-embedding-2-preview' task_type=None google_api_key=SecretStr('**********') credentials=None vertexai=None project=None location=None base_url=None additional_headers=None client_args=None api_version=None request_options=None output_dimensionality=None      
+Initializing vector store with embedding model: gemini-embedding-2-preview
+Initialized vector store
+Storing 3 chunks in vector store
+Stored chunk 1/3 in vector store
+Stored chunk 2/3 in vector store
+Stored chunk 3/3 in vector store
+Loading LLM model
+Initializing LLM model: claude-sonnet-4-6
+Initialized LLM model : claude-sonnet-4-6
+Loaded LLM model : metadata={'lc_versions': {'langchain-core': '1.4.8', 'langchain': '1.2.13', 'langchain-anthropic': '1.4.7'}} profile={'name': 'Claude Sonnet 4.6', 'release_date': '2026-02-17', 'last_updated': '2026-03-13', 'open_weights': False, 'max_input_tokens': 1000000, 'max_output_tokens': 64000, 'text_inputs': True, 'image_inputs': True, 'audio_inputs': False, 'pdf_inputs': True, 'video_inputs': False, 'text_outputs': True, 'image_outputs': False, 'audio_outputs': False, 'video_outputs': False, 'reasoning_output': True, 'tool_calling': True, 'attachment': True, 'temperature': True, 'image_url_inputs': True, 'pdf_tool_message': True, 'image_tool_message': True, 'structured_output': True, 'tool_call_streaming': True} model='claude-sonnet-4-6' max_tokens=64000 temperature=0.6 anthropic_api_url='https://api.anthropic.com' anthropic_api_key=SecretStr('**********') model_kwargs={}
+Loading embedding model and vector store
+Initializing embedding model
+Initialized embedding model: client=<google.genai.client.Client object at 0x00000278849B5E50> model='gemini-embedding-2-preview' task_type=None google_api_key=SecretStr('**********') credentials=None vertexai=None project=None location=None base_url=None additional_headers=None client_args=None api_version=None request_options=None output_dimensionality=None      
+Initializing vector store with embedding model: gemini-embedding-2-preview
+Initialized vector store
+Successfully loaded embedding model and vector store
+Initializing retriever
+Initialized ensemble retriever with vector and BM25 retrievers
+
+────────────────────────────────────────────────────────────
+  💬 Chat started! Ask me anything about your documents.
+     Type 'quit' or 'exit' to end the session.
+────────────────────────────────────────────────────────────
+
+
+────────────────────────────────────────────────────────────
+  🧑 PHASE 2 — USER QUERY
+────────────────────────────────────────────────────────────
+
+🧑 You: I m rehan and you
+
+
+────────────────────────────────────────────────────────────
+  🔍 PHASE 3 — RETRIEVAL
+────────────────────────────────────────────────────────────
+
+Binding structured output to LLM with QueryPlan schema
+Building chain with prompt and structured LLM
+Invoking chain to rewrite query with chat_history: [] and question: I m rehan and you
+Received query plan from LLM: action=skip, query=
+  ⏭️  No document search needed for this message.
+
+  📚 Retrieved 0 relevant chunk(s).
+
+
+────────────────────────────────────────────────────────────
+  🧠 PHASE 4 — GENERATION
+────────────────────────────────────────────────────────────
+
+Building chain with prompt and LLM for answer generation
+Invoking chain to generate answer with context and question
+Received answer from LLM: I notice that your question appears to be a personal introduction ("I'm Rehan and you..."), but **no context documents were provided** for me to analyze.
+
+As **DocLens**, I'm designed to analyze and answer questions based on provided documents/context. I don't have any documents to reference here.
+
+Could you please:
+1. **Share the document(s)** you'd like me to analyze, and
+2. **Ask a specific question** about that content?
+
+I'll be happy to help once I have the relevant context! 😊
+
+🤖 DocLens:
+I notice that your question appears to be a personal introduction ("I'm Rehan and you..."), but **no context documents were provided** for me to analyze.
+
+As **DocLens**, I'm designed to analyze and answer questions based on provided documents/context. I don't have any documents to reference here.
+
+Could you please:
+1. **Share the document(s)** you'd like me to analyze, and
+2. **Ask a specific question** about that content?
+
+I'll be happy to help once I have the relevant context! 😊
+
+
+
+────────────────────────────────────────────────────────────
+  🧑 PHASE 2 — USER QUERY
+────────────────────────────────────────────────────────────
+
+🧑 You: what you know about market of AGI
+
+
+────────────────────────────────────────────────────────────
+  🔍 PHASE 3 — RETRIEVAL
+────────────────────────────────────────────────────────────
+
+Binding structured output to LLM with QueryPlan schema
+Building chain with prompt and structured LLM
+Invoking chain to rewrite query with chat_history: [HumanMessage(content='I m rehan and you', additional_kwargs={}, response_metadata={}), AIMessage(content='I notice that your question appears to be a personal introduction ("I\'m Rehan and you..."), but **no context documents were provided** for me to analyze.\n\nAs **DocLens**, I\'m designed to analyze and answer questions based on provided documents/context. I don\'t have any documents to reference here.\n\nCould you please:\n1. **Share the document(s)** you\'d like me to analyze, and\n2. **Ask a specific question** about that content?\n\nI\'ll be happy to help once I have the relevant context! 😊', additional_kwargs={}, response_metadata={}, tool_calls=[], invalid_tool_calls=[])] and question: what you know about market of AGI
+Received query plan from LLM: action=retrieve, query=market of AGI (Artificial General Intelligence)
+Running retrieval for query: market of AGI (Artificial General Intelligence)
+Retrieved 1 documents for query: market of AGI (Artificial General Intelligence)
+
+  📚 Retrieved 1 relevant chunk(s).
+
+
+────────────────────────────────────────────────────────────
+  🧠 PHASE 4 — GENERATION
+────────────────────────────────────────────────────────────
+
+Building chain with prompt and LLM for answer generation
+Invoking chain to generate answer with context and question
+Received answer from LLM: ## AGI Market Insights
+
+Based on the provided context, here are the key market details for AGI:
+
+### 📊 Market Size
+| Year | Value |
+|------|-------|
+| 2023 | **$2.74 Billion** |
+| 2032 | **$52 Billion** |
+
+### 📈 Growth Rate
+- **CAGR: ~36.9%** — indicating very rapid market expansion
+
+### 🏆 Leading Sector
+- **Finance** leads AGI adoption with **~38% expected by 2028**
+- Use cases include: **Trading, Risk Management & Fraud Detection**
+
+### 🔑 Key Takeaway
+The AGI market is experiencing **explosive growth**, nearly **19x increase** from 2023 to 2032, driven largely by the **finance sector**.
+
+---
+*Source: AGI One-Page Summary Document*
+
+🤖 DocLens:
+## AGI Market Insights
+
+Based on the provided context, here are the key market details for AGI:
+
+### 📊 Market Size
+| Year | Value |
+|------|-------|
+| 2023 | **$2.74 Billion** |
+| 2032 | **$52 Billion** |
+
+### 📈 Growth Rate
+- **CAGR: ~36.9%** — indicating very rapid market expansion
+
+### 🏆 Leading Sector
+- **Finance** leads AGI adoption with **~38% expected by 2028**
+- Use cases include: **Trading, Risk Management & Fraud Detection**
+
+### 🔑 Key Takeaway
+The AGI market is experiencing **explosive growth**, nearly **19x increase** from 2023 to 2032, driven largely by the **finance sector**.
+
+---
+*Source: AGI One-Page Summary Document*
+
+
+
+────────────────────────────────────────────────────────────
+  🧑 PHASE 2 — USER QUERY
+────────────────────────────────────────────────────────────
+
+🧑 You: and challenges
+
+
+────────────────────────────────────────────────────────────
+  🔍 PHASE 3 — RETRIEVAL
+────────────────────────────────────────────────────────────
+
+Binding structured output to LLM with QueryPlan schema
+Building chain with prompt and structured LLM
+Invoking chain to rewrite query with chat_history: [HumanMessage(content='I m rehan and you', additional_kwargs={}, response_metadata={}), AIMessage(content='I notice that your question appears to be a personal introduction ("I\'m Rehan and you..."), but **no context documents were provided** for me to analyze.\n\nAs **DocLens**, I\'m designed to analyze and answer questions based on provided documents/context. I don\'t have any documents to reference here.\n\nCould you please:\n1. **Share the document(s)** you\'d like me to analyze, and\n2. **Ask a specific question** about that content?\n\nI\'ll be happy to help once I have the relevant context! 😊', additional_kwargs={}, response_metadata={}, tool_calls=[], invalid_tool_calls=[]), HumanMessage(content='what you know about market of AGI', additional_kwargs={}, response_metadata={}), AIMessage(content='## AGI Market Insights\n\nBased on the provided context, here are the key market details for AGI:\n\n### 📊 Market Size\n| Year | Value |\n|------|-------|\n| 2023 | **$2.74 Billion** |\n| 2032 | **$52 Billion** |\n\n### 📈 Growth Rate\n- **CAGR: ~36.9%** — indicating very rapid market expansion\n\n### 🏆 Leading Sector\n- **Finance** leads AGI adoption with **~38% expected by 2028**\n- Use cases include: **Trading, Risk Management & Fraud Detection**\n\n### 🔑 Key Takeaway\nThe AGI market is experiencing **explosive growth**, nearly **19x increase** from 2023 to 2032, driven largely by the **finance sector**.\n\n---\n*Source: AGI One-Page Summary Document*', additional_kwargs={}, response_metadata={}, tool_calls=[], invalid_tool_calls=[])] and question: and challenges
+Received query plan from LLM: action=retrieve, query=challenges in AGI market
+Running retrieval for query: challenges in AGI market
+Retrieved 2 documents for query: challenges in AGI market
+
+  📚 Retrieved 2 relevant chunk(s).
+
+
+────────────────────────────────────────────────────────────
+  🧠 PHASE 4 — GENERATION
+────────────────────────────────────────────────────────────
+
+Building chain with prompt and LLM for answer generation
+Invoking chain to generate answer with context and question
+Received answer from LLM: ## Challenges in AGI Market
+
+Based on the provided context document, the following challenge is explicitly mentioned:
+
+### ⚠️ Identified Challenge
+- **Lack of standard evaluation benchmarks**
+  - This means there are no universally accepted ways to measure or validate AGI progress
+
+---
+
+### 📌 Additional Context-Related Challenges (Implied)
+
+From the **Key Takeaways** section, these critical concerns are highlighted:
+
+| Challenge | Details |
+|-----------|---------|
+| **Ethical Governance** | Need for proper regulatory frameworks |
+| **Workforce Reskilling** | AGI disrupts jobs, requiring workforce adaptation |
+| **Regulatory Frameworks** | Long-term global regulations still developing |
+
+---
+
+### 🔮 Future Outlook Perspective
+- **Short-term**: Limited general intelligence in hybrid systems
+- **Mid-term**: Early prototypes still in testing phases
+- **Long-term**: ASI emergence poses **unknown risks**
+
+---
+
+### ⚡ Key Takeaway
+The AGI market faces challenges on **multiple fronts**:
+- **Technical** *(no standard benchmarks)*
+- **Ethical** *(governance issues)*
+- **Social** *(workforce disruption)*
+
+> *Note: The context document provides limited detail on challenges. More comprehensive sources may reveal additional barriers.*
+
+🤖 DocLens:
+## Challenges in AGI Market
+
+Based on the provided context document, the following challenge is explicitly mentioned:
+
+### ⚠️ Identified Challenge
+- **Lack of standard evaluation benchmarks**
+  - This means there are no universally accepted ways to measure or validate AGI progress
+
+---
+
+### 📌 Additional Context-Related Challenges (Implied)
+
+From the **Key Takeaways** section, these critical concerns are highlighted:
+
+| Challenge | Details |
+|-----------|---------|
+| **Ethical Governance** | Need for proper regulatory frameworks |
+| **Workforce Reskilling** | AGI disrupts jobs, requiring workforce adaptation |
+| **Regulatory Frameworks** | Long-term global regulations still developing |
+
+---
+
+### 🔮 Future Outlook Perspective
+- **Short-term**: Limited general intelligence in hybrid systems
+- **Mid-term**: Early prototypes still in testing phases
+- **Long-term**: ASI emergence poses **unknown risks**
+
+---
+
+### ⚡ Key Takeaway
+The AGI market faces challenges on **multiple fronts**:
+- **Technical** *(no standard benchmarks)*
+- **Ethical** *(governance issues)*
+- **Social** *(workforce disruption)*
+
+> *Note: The context document provides limited detail on challenges. More comprehensive sources may reveal additional barriers.*
+
+
+
+────────────────────────────────────────────────────────────
+  🧑 PHASE 2 — USER QUERY
+────────────────────────────────────────────────────────────
+
+🧑 You:       
+
+👋 Goodbye!
